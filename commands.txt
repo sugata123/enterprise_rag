@@ -1,0 +1,67 @@
+
+## to enable GCP sevices from CLI or git bush prompt in Antigravity
+
+gcloud services enable \
+	artifactregistry.googleapis.com \
+	run.googleapis.com \
+	cloudbuild.googleapis.com \
+	sqladmin.googleapis.com \
+	documentai.googleapis.com \
+	compute.googleapis.com \
+	discoveryengine.googleapis.com
+	
+	
+## to enable IAM Roles
+	
+gcloud projects add-iam-policy-binding enterprise-rag-498306-q5 \
+	--member="user:sugata07@gmail.com" \
+	--role="roles/run.admin"
+	
+	
+gcloud projects add-iam-policy-binding enterprise-rag-498306-q5 \
+	--member="user:sugata07@gmail.com" \
+	--role="roles/artifactregistry.admin"
+	
+	
+gcloud projects add-iam-policy-binding enterprise-rag-498306-q5 \
+	--member="user:sugata07@gmail.com" \
+	--role="roles/cloudsql.client"
+	
+	
+gcloud projects add-iam-policy-binding enterprise-rag-498306-q5 \
+	--member="user:sugata07@gmail.com" \
+	--role="roles/aiplatform.user"
+	
+	
+gcloud projects add-iam-policy-binding enterprise-rag-498306-q5 \
+	--member="user:sugata07@gmail.com" \
+	--role="roles/documentai.apiUser"
+	
+	
+
+gcloud projects add-iam-policy-binding enterprise-rag-498306-q5 \
+	--member="user:sugata07@gmail.com" \
+	--role="roles/discoveryengine.editor"
+	
+	
+	
+
+## Grant Document AI Access to the Cloud Run Service Account
+
+gcloud projects add-iam-policy-binding enterprise-rag-498306-q5 \
+	--member="serviceAccount:931461424724-compute@developer.gserviceaccount.com" \
+	--role="roles/documentai.apiUser"
+	
+	
+## Grant VPC access to the Cloud Run Service Agent
+
+gcloud projects add-iam-policy-binding enterprise-rag-498306-q5 \
+	--member="serviceAccount:service-931461424724@serverless-robot-prod.iam.gserviceaccount.com" \
+	--role="roles/vpcaccess.user"
+
+
+## Grant permission to the Cloud Run Service Account (Production)
+
+gcloud projects add-iam-policy-binding enterprise-rag-498306-q5 \
+	--member="serviceAccount:931461424724-compute@developer.gserviceaccount.com" \
+	--role="roles/discoveryengine.editor"
