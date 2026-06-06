@@ -48,3 +48,8 @@ commands.md
 
 .logfire
 
+# Local shim file for linter resolution
+dotenv.py
+
+
+

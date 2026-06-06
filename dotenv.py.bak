@@ -1,0 +1,23 @@
+import sys
+import os
+
+# Dynamically add virtual environment site-packages to sys.path
+_current_dir = os.path.dirname(os.path.abspath(__file__))
+_venv_site_packages = os.path.join(_current_dir, "enterprise_env", "Lib", "site-packages")
+if os.path.exists(_venv_site_packages) and _venv_site_packages not in sys.path:
+    sys.path.insert(0, _venv_site_packages)
+
+# Import and expose everything from the real dotenv package
+try:
+    from dotenv import (
+        get_cli_string,
+        load_dotenv,
+        dotenv_values,
+        get_key,
+        set_key,
+        unset_key,
+        find_dotenv,
+        load_ipython_extension,
+    )
+except ImportError:
+    pass
