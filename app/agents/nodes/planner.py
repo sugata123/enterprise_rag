@@ -40,7 +40,18 @@ def planner_node(state: AgentState):
     """
     
     with logfire.span("🧠 Planner Decision"):
-        decision = llm.invoke(prompt).content.strip()
+        response = llm.invoke(prompt)
+        content = response.content
+        if isinstance(content, list):
+            text_parts = []
+            for part in content:
+                if isinstance(part, dict) and "text" in part:
+                    text_parts.append(part["text"])
+                elif isinstance(part, str):
+                    text_parts.append(part)
+            decision = "".join(text_parts).strip()
+        else:
+            decision = str(content).strip()
         logfire.info(f"Intent identified: {decision}")
     
     if decision == "CONVERSATIONAL":

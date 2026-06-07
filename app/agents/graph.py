@@ -6,7 +6,7 @@ from app.agents.nodes.retriever import retrieve_node
 from app.agents.nodes.responder import generate_node
 
 # 1. Initialize the State Graph
-workflow = StateGraph(AgentState)
+workflow = StateGraph(AgentState)  # type: ignore
 
 # 2. Define the Nodes
 workflow.add_node("planner", planner_node)

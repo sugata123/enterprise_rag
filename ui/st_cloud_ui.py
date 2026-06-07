@@ -4,27 +4,15 @@ import requests
 import time
 import uuid
 import logfire
-from dotenv import load_dotenv
-
-
-# Load environment variables explicitly from the root directory
-env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env"))
-load_dotenv(dotenv_path=env_path)
 
 
 # Initialize Logfire
 try:
-    token = os.getenv("LOGFIRE_TOKEN")
-    if not token:
-        print("ERROR: LOGFIRE_TOKEN is empty or None!")
-    logfire.configure(token=token)
-    # logfire.instrument_requests() # Disabled due to OpenTelemetry bug on Windows: MeterProvider.get_meter() got multiple values for argument 'version'
+    # Use st.secrets for Streamlit Cloud
+    logfire.configure(token=st.secrets.get("LOGFIRE_TOKEN", os.getenv("LOGFIRE_TOKEN")))
     LOGFIRE_STATUS = "Connected & Tracing"
-except Exception as e:
-    print(f"Logfire Init Error in UI: {e}")
-    LOGFIRE_STATUS = f"Standby (Error: {e})"
-    
-
+except Exception:
+    LOGFIRE_STATUS = "Standby (No Token)"
 
 # --- PAGE CONFIG ---
 st.set_page_config(
@@ -37,7 +25,6 @@ st.set_page_config(
 AI_AVATAR = "🤖"
 USER_AVATAR = "👤"
 
-
 # --- SESSION MANAGEMENT ---
 if "session_id" not in st.session_state:
     st.session_state.session_id = str(uuid.uuid4())
@@ -46,10 +33,13 @@ if "session_id" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-
 # --- SIDEBAR ---
 with st.sidebar:
     st.title("🧠 Agent OS")
+    st.markdown("---")
+
+    base_url = "https://rag-api-173472321372.us-central1.run.app"
+    
     st.markdown("---")
     st.success(f"Logfire: {LOGFIRE_STATUS}")
     st.info(f"Memory ID: {st.session_state.session_id[:8]}")
@@ -62,7 +52,6 @@ with st.sidebar:
 
 # --- MAIN CHAT ---
 st.title("🤖 Enterprise Agentic Assistant")
-
 
 # Display history
 for message in st.session_state.messages:
@@ -85,11 +74,14 @@ if prompt := st.chat_input("Ask about your documentation..."):
                 try:
                     # DISTRIBUTED TRACE: Calling Backend
                     with logfire.span("📡 Calling RAG Backend"):
-                        # Get backend URL from env, or default to local if not set
-                        base_url = os.getenv("BACKEND_URL", "http://localhost:8000")
                         url = f"{base_url}/query"
                         payload = {"q": prompt, "thread_id": st.session_state.session_id}
                         response = requests.post(url, json=payload, timeout=60)
+                        
+                        if response.status_code != 200:
+                            st.error(f"Backend Error: {response.status_code} - {response.text}")
+                            st.stop()
+                            
                         data = response.json()
                     
                     # Show Reasoning Steps from Backend

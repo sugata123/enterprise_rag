@@ -8,7 +8,14 @@ def retrieve_node(state: AgentState):
     Performs vector search and semantic reranking for technical queries.
     """
     query = state["current_query"]
-    
+
+    if query == "CONVERSATIONAL":
+        logfire.info("Skipping retrieval- query is conversational, no documents retrieved from DB.")
+        return {
+            "documents": [],
+            "status": "Handling conversationally (using memory)... No retrieval needed.",
+            "plan": state["plan"] + ["Retrieval Skipped"]
+        }
     
     # Standard Retrieval Logic
     with logfire.span("🔍 Knowledge Retrieval"):

@@ -68,11 +68,23 @@ def generate_node(state: AgentState):
     with logfire.span("✍️ LLM Synthesis"):
         try:
             response = llm.invoke(prompt)
+            content = response.content
+            if isinstance(content, list):
+                text_parts = []
+                for part in content:
+                    if isinstance(part, dict) and "text" in part:
+                        text_parts.append(part["text"])
+                    elif isinstance(part, str):
+                        text_parts.append(part)
+                answer_str = "".join(text_parts)
+            else:
+                answer_str = str(content)
+
             logfire.info("Response synthesized successfully.")
             return {
-                "final_answer": response.content,
+                "final_answer": answer_str,
                 "status": "Response generated.",
-                "messages": [{"role": "assistant", "content": response.content}]
+                "messages": [{"role": "assistant", "content": answer_str}]
             }
         except Exception as e:
             logfire.error(f"LLM Generation failed: {e}")
